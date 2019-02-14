@@ -55,6 +55,11 @@ class ProcesarJugada
 		$this->origen=$jugada->origen;
 		$this->extremo=$jugada->extremo;
 	}
+
+	public function pilaOrigenNoVacia(Pila $pilaOrigen){
+
+	}
+	
 }
 
 class FormatJugada
@@ -100,6 +105,10 @@ class Movimientos
 		$this->minMovimiento= (2**$cantDiscos)-1;
 		$this->movimientosRealizados=0;
 	}
+	
+	public function movimientoRealizado(){
+		$this->movimientosRealizados++;
+	}
 }
 
 
@@ -112,15 +121,15 @@ $disco=new Disco($cantidadDiscos);
 $pila1=new Pila($cantidadDiscos);
 $pila2=new Pila($cantidadDiscos);
 $pila3=new Pila($cantidadDiscos);
+$cantJugadas= new Movimientos($cantidadDiscos);
 foreach ($disco->conjunto_disco as $key => $disco) {
 	$pila1->push($disco);	
 }
 $torre=new FormarTorre;
-
 $torre->imprimirTorre($pila1);
 $torre->imprimirTorre($pila2);
 $torre->imprimirTorre($pila3);
-
+echo 'minimos de movimientos:'.$cantJugadas->minMovimiento.'  -----  moviminetos realizados:'.$cantJugadas->movimientosRealizados.PHP_EOL;
 $ganado=false;
 while ($ganado==false) {
 	echo "jugadas posibles".PHP_EOL; 
@@ -163,15 +172,16 @@ while ($ganado==false) {
 			break;
 	}
 	if ($jugadaValida) {
+		$jugada=new FormatJugada;
+		$procesarJugada= new ProcesarJugada($jugada);
 		if (!$pilaPop->isEmpty()) {
-			$jugada=new FormatJugada;
 			$jugada->setOrigenExtremo($desdeHasta);
-			$procesarJugada= new ProcesarJugada($jugada);
 			$topPop=$pilaPop->top();
 			$topPush=$pilaPush->top();
 			if ($topPush==false || $topPop<$topPush) {
 				$pilaPop->pop();
 				$pilaPush->push($topPop);
+				$cantJugadas->movimientoRealizado();
 			}else{
 				echo "movimiento invalido".PHP_EOL;
 			}
@@ -184,18 +194,18 @@ while ($ganado==false) {
 	$torre->imprimirTorre($pila1);
 	$torre->imprimirTorre($pila2);
 	$torre->imprimirTorre($pila3);
-	//var_dump($pila1->pila,$pila2->pila,$pila3->pila);
-	if ($pila3->length()==$cantidadDiscos || $desdeHasta=='x') {$ganado=true;}
+	echo 'minimos de movimientos:'.$cantJugadas->minMovimiento.'  -----  moviminetos realizados:'.$cantJugadas->movimientosRealizados.PHP_EOL;
+if ($pila3->length()==$cantidadDiscos || $desdeHasta=='x') {$ganado=true;}
 }
+
+
 if ($desdeHasta=='x') {
 	$resultado="te rendiste  ;(";
 }else{
 	$resultado="Felicidades Ganaste XD";
 }
 	echo "_________________________________________________________".PHP_EOL; 
-	echo "_________________________________________________________".PHP_EOL; 
 	echo '----------------'.$resultado.'----------------'.PHP_EOL;
-	echo "_________________________________________________________".PHP_EOL; 
 	echo "_________________________________________________________".PHP_EOL; 
 
 
