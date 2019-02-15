@@ -130,7 +130,7 @@ class FormarTorre
 			$ancho_total=2*$size+1;
 			$sizeFigAMostrar=2*$disco-1;
 			$rellenoTorre=($ancho_total-$sizeFigAMostrar)/2;
-			$figAMostrar=$this->formarstring($sizeFigAMostrar,'*');
+			$figAMostrar=$this->formarstring($sizeFigAMostrar,$formaDisco);
 		}
 		$relleno=$this->formarstring($rellenoTorre,$formaRelleno);
 		$lineaTorre=$relleno.$figAMostrar.$relleno;
@@ -144,21 +144,8 @@ class FormarTorre
 		}
 		return $string;
 	}
-/* 
-      *      
-     ***     
-    *****    
-   *******   
-  *********  
- *********** 
-
-*/
 }
-/* $prueba = new FormarTorre();
-echo $prueba->construirlineaTorre(7,0).PHP_EOL;
-echo $prueba->construirlineaTorre(7,1).PHP_EOL;
-echo $prueba->construirlineaTorre(7,3).PHP_EOL;
-die(); */
+
 class Movimiento
 {
 	public $minMovimiento;
@@ -187,9 +174,6 @@ foreach ($disco->conjunto_disco as $key => $disco) {
 }
 $torre=new FormarTorre;
 $torre->imprimirTorresParalelo($pila1,$pila2,$pila3);
-/* $torre->imprimirTorre($pila1);
-$torre->imprimirTorre($pila2);
-$torre->imprimirTorre($pila3); */
 echo 'minimos de movimientos:'.$cantJugadas->minMovimiento.'  -----  moviminetos realizados:'.$cantJugadas->movimientosRealizados.PHP_EOL;
 $ganado=false;
 while ($ganado==false) {
@@ -251,9 +235,6 @@ while ($ganado==false) {
 		echo "error al ingresar numeros".PHP_EOL;
 	}
 	$torre->imprimirTorresParalelo($pila1,$pila2,$pila3);
-	/* $torre->imprimirTorre($pila1);
-	$torre->imprimirTorre($pila2);
-	$torre->imprimirTorre($pila3); */
 	echo 'minimos de movimientos:'.$cantJugadas->minMovimiento.'  -----  moviminetos realizados:'.$cantJugadas->movimientosRealizados.PHP_EOL;
 if ($pila3->length()==$cantidadDiscos || $desdeHasta=='x') {$ganado=true;}
 }
