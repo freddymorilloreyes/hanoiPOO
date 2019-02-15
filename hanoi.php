@@ -1,5 +1,4 @@
 <?php
-
 class Pila
 {
     public $pila;
@@ -50,14 +49,30 @@ class ProcesarJugada
 {
 	private $origen;
 	private $extremo;
+	private $topOrigen;
+	private $topExtremo;
 
 	public function __construct(FormatJugada $jugada){
 		$this->origen=$jugada->origen;
 		$this->extremo=$jugada->extremo;
 	}
 
-	public function pilaOrigenNoVacia(Pila $pilaOrigen){
+	public function setTopsPilas(Pila $pilaOrigen,Pila $pilaExtremo){
+		$this->topOrigen=$pilaOrigen->top();
+		$this->topExtremo=$pilaExtremo->top();
+	}
 
+	public function validarJugada(){
+		if ($this->topExtremo==false){
+			return true;
+		}else{
+			return $this->topOrigen<$this->topExtremo;
+		}
+	}
+
+	public function ejecutarJugada(Pila $pilaOrigen,Pila $pilaExtremo){
+		$pilaOrigen->pop();
+		$pilaExtremo->push($this->topOrigen);
 	}
 	
 }
@@ -88,16 +103,63 @@ class FormarTorre
 		}
 		echo '____________________'.PHP_EOL;
 	}
-	/* public function imprimirTorre(Pila $torre){
-		for ($i=$torre->size; $i >=0 ; $i--) { 
-			$valor = (isset($torre->pila[$i])) ? $torre->pila[$i] : '|' ;
-			echo $valor.PHP_EOL;
-		}
-		echo '------------------'.PHP_EOL;
-	} */
-}
 
-class Movimientos
+	public function imprimirTorresParalelo(Pila $torre1,Pila $torre2,Pila $torre3){
+		$size=$torre1->size;
+		for ($i=$size; $i>=0  ; $i--) { 
+			$discoTorre1 = (isset($torre1->pila[$i])) ? $torre1->pila[$i] : 0 ;
+			$discoTorre2 = (isset($torre2->pila[$i])) ? $torre2->pila[$i] : 0 ;
+			$discoTorre3 = (isset($torre3->pila[$i])) ? $torre3->pila[$i] : 0 ;
+			$lineaTorre1=$this->construirlineaTorre($size,$discoTorre1);
+			$lineaTorre2=$this->construirlineaTorre($size,$discoTorre2);
+			$lineaTorre3=$this->construirlineaTorre($size,$discoTorre3);
+			echo $lineaTorre1.$lineaTorre2.$lineaTorre3.PHP_EOL;
+		}
+		$anchoBase=3*(2*$size+1);
+		echo $this->formarstring($anchoBase,'_').PHP_EOL;
+	}
+
+	private function construirlineaTorre($size,$disco){
+		$formaSinDisco='|';
+		$formaDisco='*';
+		$formaRelleno=' ';
+		if ($disco==0 || $disco==1) {
+			$rellenoTorre=$size;
+			$figAMostrar= ($disco==0)? $formaSinDisco : $formaDisco ;
+		}else{
+			$ancho_total=2*$size+1;
+			$sizeFigAMostrar=2*$disco-1;
+			$rellenoTorre=($ancho_total-$sizeFigAMostrar)/2;
+			$figAMostrar=$this->formarstring($sizeFigAMostrar,'*');
+		}
+		$relleno=$this->formarstring($rellenoTorre,$formaRelleno);
+		$lineaTorre=$relleno.$figAMostrar.$relleno;
+		return $lineaTorre;
+	}
+
+	private function formarstring($size,$forma){
+		$string="";
+		for ($i=0; $i < $size ; $i++) { 
+			$string.=$forma;
+		}
+		return $string;
+	}
+/* 
+      *      
+     ***     
+    *****    
+   *******   
+  *********  
+ *********** 
+
+*/
+}
+/* $prueba = new FormarTorre();
+echo $prueba->construirlineaTorre(7,0).PHP_EOL;
+echo $prueba->construirlineaTorre(7,1).PHP_EOL;
+echo $prueba->construirlineaTorre(7,3).PHP_EOL;
+die(); */
+class Movimiento
 {
 	public $minMovimiento;
 	public $movimientosRealizados;
@@ -115,26 +177,25 @@ class Movimientos
 echo "ingrese la cantidad de discos".PHP_EOL; 
 fscanf(STDIN, "%s\n", $cantidadDiscos);
 $cantidadDiscos;
-
-
 $disco=new Disco($cantidadDiscos);
 $pila1=new Pila($cantidadDiscos);
 $pila2=new Pila($cantidadDiscos);
 $pila3=new Pila($cantidadDiscos);
-$cantJugadas= new Movimientos($cantidadDiscos);
+$cantJugadas= new Movimiento($cantidadDiscos);
 foreach ($disco->conjunto_disco as $key => $disco) {
 	$pila1->push($disco);	
 }
 $torre=new FormarTorre;
-$torre->imprimirTorre($pila1);
+$torre->imprimirTorresParalelo($pila1,$pila2,$pila3);
+/* $torre->imprimirTorre($pila1);
 $torre->imprimirTorre($pila2);
-$torre->imprimirTorre($pila3);
+$torre->imprimirTorre($pila3); */
 echo 'minimos de movimientos:'.$cantJugadas->minMovimiento.'  -----  moviminetos realizados:'.$cantJugadas->movimientosRealizados.PHP_EOL;
 $ganado=false;
 while ($ganado==false) {
 	echo "jugadas posibles".PHP_EOL; 
 	echo "-12-21-13-31-23-32".PHP_EOL; 
-	echo "el primer numero indica desde donde mover y el segundo hacias donde".PHP_EOL; 
+	echo "el primer numero indica desde donde mover y el segundo hacia donde".PHP_EOL; 
 	fscanf(STDIN, "%s\n", $desdeHasta);
 	switch ($desdeHasta) {
 		case '12':
@@ -172,15 +233,13 @@ while ($ganado==false) {
 			break;
 	}
 	if ($jugadaValida) {
-		$jugada=new FormatJugada;
-		$procesarJugada= new ProcesarJugada($jugada);
 		if (!$pilaPop->isEmpty()) {
+			$jugada=new FormatJugada;
 			$jugada->setOrigenExtremo($desdeHasta);
-			$topPop=$pilaPop->top();
-			$topPush=$pilaPush->top();
-			if ($topPush==false || $topPop<$topPush) {
-				$pilaPop->pop();
-				$pilaPush->push($topPop);
+			$procesarJugada= new ProcesarJugada($jugada);
+			$procesarJugada->setTopsPilas($pilaPop,$pilaPush);
+			if ($procesarJugada->validarJugada()) {
+				$procesarJugada->ejecutarJugada($pilaPop,$pilaPush);
 				$cantJugadas->movimientoRealizado();
 			}else{
 				echo "movimiento invalido".PHP_EOL;
@@ -191,9 +250,10 @@ while ($ganado==false) {
 	}else{
 		echo "error al ingresar numeros".PHP_EOL;
 	}
-	$torre->imprimirTorre($pila1);
+	$torre->imprimirTorresParalelo($pila1,$pila2,$pila3);
+	/* $torre->imprimirTorre($pila1);
 	$torre->imprimirTorre($pila2);
-	$torre->imprimirTorre($pila3);
+	$torre->imprimirTorre($pila3); */
 	echo 'minimos de movimientos:'.$cantJugadas->minMovimiento.'  -----  moviminetos realizados:'.$cantJugadas->movimientosRealizados.PHP_EOL;
 if ($pila3->length()==$cantidadDiscos || $desdeHasta=='x') {$ganado=true;}
 }
